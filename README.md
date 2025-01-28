@@ -1,6 +1,8 @@
-# ICS-2000 Home Assistant Integratie
+# KlikAanKlikUit
 
-Eenvoudige stappen om de KlikAanKlikUit ICS-2000 te integreren in Home Assistant.
+![KlikAanKlikUit](./icon.png)
+
+Een integratie om de ICS-2000 te verbinden met Home Assistant.
 
 ---
 
