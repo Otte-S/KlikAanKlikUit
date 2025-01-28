@@ -1,6 +1,6 @@
-# KlikAanKlikUit
-
 ![KlikAanKlikUit](./icon.png)
+
+# KlikAanKlikUit
 
 Een integratie om de ICS-2000 te verbinden met Home Assistant.
 
