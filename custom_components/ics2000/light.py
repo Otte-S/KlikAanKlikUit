@@ -9,13 +9,13 @@ import voluptuous as vol
 
 from typing import Any
 from ics2000.Core import Hub
-from ics2000.Devices import Device, Dimmer
+from ics2000.Devices import Device, Dimmer, ZigbeeDevice, Rookmelder
 from enum import Enum
 
 # Import the device class from the component that you want to support
 import homeassistant.helpers.config_validation as cv
 from homeassistant.components.light import ATTR_BRIGHTNESS, PLATFORM_SCHEMA, LightEntity, ColorMode
-from homeassistant.const import CONF_PASSWORD, CONF_MAC, CONF_EMAIL,CONF_IP_ADDRESS
+from homeassistant.const import CONF_PASSWORD, CONF_MAC, CONF_EMAIL, CONF_IP_ADDRESS
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
@@ -115,12 +115,21 @@ class KlikAanKlikUitDevice(LightEntity):
         self._state = None
         self._brightness = None
         self.unique_id = f'kaku-{device.id}'
-        if Dimmer == type(device):
-            _LOGGER.info(f'Adding dimmer with name {device.name}')
+
+        # Check if the device is a Zigbee device or smoke sensor
+        if isinstance(device, ZigbeeDevice):
+            _LOGGER.info(f'Adding Zigbee device with name {device.name}')
+            self._attr_supported_color_modes = {ColorMode.BRIGHTNESS, ColorMode.ONOFF}
             self._attr_color_mode = ColorMode.BRIGHTNESS
+        elif isinstance(device, Rookmelder):
+            _LOGGER.info(f'Adding smoke detector with name {device.name}')
+            self._attr_device_class = "smoke"
+        elif isinstance(device, Dimmer):
+            _LOGGER.info(f'Adding dimmer with name {device.name}')
             self._attr_supported_color_modes = {ColorMode.BRIGHTNESS}
+            self._attr_color_mode = ColorMode.BRIGHTNESS
         else:
-            _LOGGER.info(f'Adding device with name {device.name}')
+            _LOGGER.info(f'Adding regular device with name {device.name}')
             self._attr_color_mode = ColorMode.ONOFF
             self._attr_supported_color_modes = {ColorMode.ONOFF}
 
@@ -131,11 +140,7 @@ class KlikAanKlikUitDevice(LightEntity):
 
     @property
     def brightness(self):
-        """Return the brightness of the light.
-
-        This method is optional. Removing it indicates to Home Assistant
-        that brightness is not supported for this light.
-        """
+        """Return the brightness of the light."""
         return self._brightness
 
     @property
